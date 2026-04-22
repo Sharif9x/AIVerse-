@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIVerse — Find Every AI Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --surface: #0d1220;
+    --border: #1a2236;
+    --accent: #00d4ff;
+    --accent2: #7b5fff;
+    --text: #e8edf5;
+    --muted: #6b7a99;
+    --card: #0a1018;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 { width: 500px; height: 500px; background: rgba(0,212,255,0.06); top: -100px; left: -100px; }
+  .orb2 { width: 400px; height: 400px; background: rgba(123,95,255,0.07); bottom: -50px; right: -50px; }
+
+  /* Header */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
+
+  .logo-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 8px;
+    vertical-align: middle;
+    letter-spacing: 1px;
+  }
+
+  nav { display: flex; gap: 8px; }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  nav a:hover { color: var(--text); background: var(--surface); }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 80px 20px 50px;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 5px 16px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 .gradient {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 17px;
+    max-width: 500px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* Search */
+  .search-wrap {
+    max-width: 620px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .search-box {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 60px 18px 56px;
+    font-size: 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: all 0.3s;
+  }
+
+  .search-box::placeholder { color: var(--muted); }
+
+  .search-box:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(0,212,255,0.08);
+    background: #0f1825;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  .search-count {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--border);
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+
+  /* Stats */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 50px;
+    padding: 0 20px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* Main content */
+  .main {
+    position: relative;
+    z-index: 10;
+    max-width: 1200px;
+    margin: 60px auto 40px;
+    padding: 0 20px;
+  }
+
+  /* Categories */
+  .categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 40px;
+    align-items: center;
+  }
+
+  .cat-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-right: 8px;
+    font-weight: 500;
+  }
+
+  .cat-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 7px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cat-btn:hover, .cat-btn.active {
+    background: rgba(0,212,255,0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Section header */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .result-count {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Tools Grid */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: radial-gradient(circle at 50% 0%, rgba(0,212,255,0.06), transparent 70%);
+  }
+
+  .tool-card:hover {
+    border-color: rgba(0,212,255,0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .tool-card:hover::before { opacity: 1; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .tool-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .tool-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-free { background: rgba(0,200,100,0.12); color: #00c864; border: 1px solid rgba(0,200,100,0.2); }
+  .badge-freemium { background: rgba(255,180,0,0.1); color: #ffb400; border: 1px solid rgba(255,180,0,0.2); }
+  .badge-paid { background: rgba(255,80,80,0.1); color: #ff5050; border: 1px solid rgba(255,80,80,0.2); }
+  .badge-popular { background: rgba(123,95,255,0.12); color: #9b7fff; border: 1px solid rgba(123,95,255,0.2); }
+
+  .tool-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .tool-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .tool-cat-tag {
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface);
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .try-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 7px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    border: none;
+    cursor: pointer;
+  }
+
+  .try-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(0,212,255,0.3);
+  }
+
+  /* No results */
+  .no-results {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+    display: none;
+  }
+  .no-results h3 { font-family: 'Syne', sans-serif; font-size: 22px; margin-bottom: 8px; color: var(--text); }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 60px;
+  }
+
+  footer span { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    header { padding: 16px 20px; }
+    nav { display: none; }
+    .stats { gap: 24px; }
+    .tools-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<header>
+  <div class="logo">AI<span>Verse</span> <span class="logo-badge">BETA</span></div>
+  <nav>
+    <a href="#">Explore</a>
+    <a href="#">Submit Tool</a>
+    <a href="#">About</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">🚀 100+ AI Tools in One Place</div>
+  <h1>Find the Perfect<br><span class="gradient">AI Tool</span> for You</h1>
+  <p>Search, discover and try the world's best AI tools — all from one place.</p>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-box" type="text" id="searchInput" placeholder="Search AI tools... e.g. 'image generator', 'video AI'">
+    <span class="search-count" id="searchCount">50 tools</span>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">50+</div><div class="stat-label">AI Tools</div></div>
+  <div class="stat"><div class="stat-num">8</div><div class="stat-label">Categories</div></div>
+  <div class="stat"><div class="stat-num">Free</div><div class="stat-label">Always</div></div>
+</div>
+
+<div class="main">
+  <div class="categories" id="categories">
+    <span class="cat-label">Filter:</span>
+    <button class="cat-btn active" onclick="filterCat('all')">⚡ All</button>
+    <button class="cat-btn" onclick="filterCat('Image Generation')">🎨 Image Generation</button>
+    <button class="cat-btn" onclick="filterCat('Text & Writing')">✍️ Text & Writing</button>
+    <button class="cat-btn" onclick="filterCat('Video')">🎬 Video</button>
+    <button class="cat-btn" onclick="filterCat('Audio & Voice')">🎙️ Audio & Voice</button>
+    <button class="cat-btn" onclick="filterCat('Code')">💻 Code</button>
+    <button class="cat-btn" onclick="filterCat('Chatbots')">🤖 Chatbots</button>
+    <button class="cat-btn" onclick="filterCat('Design')">🖌️ Design</button>
+    <button class="cat-btn" onclick="filterCat('Productivity')">⚙️ Productivity</button>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title" id="sectionTitle">All Tools</div>
+    <div class="result-count" id="resultCount">Showing 50 tools</div>
+  </div>
+
+  <div class="tools-grid" id="toolsGrid"></div>
+  <div class="no-results" id="noResults">
+    <h3>No tools found 😕</h3>
+    <p>Try a different search or category</p>
+  </div>
+</div>
+
+<footer>
+  Made with ❤️ by <span>AIVerse</span> — The AI Tools Universe
+</footer>
+
+<script>
+const tools = [
+  // Image Generation
+  { name: "Midjourney", icon: "🎨", desc: "World's most popular AI image generator. Stunning artistic images from text prompts.", cat: "Image Generation", pricing: "freemium", popular: true, url: "https://midjourney.com" },
+  { name: "DALL·E 3", icon: "🖼️", desc: "OpenAI's powerful image generation model. Precise, detailed images from descriptions.", cat: "Image Generation", pricing: "freemium", popular: true, url: "https://openai.com/dall-e-3" },
+  { name: "Stable Diffusion", icon: "🌀", desc: "Open-source AI image generation. Run locally or use online for free.", cat: "Image Generation", pricing: "free", popular: true, url: "https://stability.ai" },
+  { name: "Leonardo.ai", icon: "🦁", desc: "AI image generation with fine-tuned models. Great for game art and concepts.", cat: "Image Generation", pricing: "freemium", popular: false, url: "https://leonardo.ai" },
+  { name: "Adobe Firefly", icon: "🔥", desc: "Adobe's AI image generator. Safe for commercial use with ethical training data.", cat: "Image Generation", pricing: "freemium", popular: false, url: "https://firefly.adobe.com" },
+  { name: "Ideogram", icon: "💡", desc: "AI that actually gets text in images right. Perfect for logos and typography.", cat: "Image Generation", pricing: "freemium", popular: false, url: "https://ideogram.ai" },
+  { name: "Playground AI", icon: "🛝", desc: "Free AI image generator with 1000 images/day. Multiple models available.", cat: "Image Generation", pricing: "free", popular: false, url: "https://playground.ai" },
+
+  // Text & Writing
+  { name: "ChatGPT", icon: "💬", desc: "OpenAI's flagship chatbot. Write, summarize, brainstorm — the OG AI assistant.", cat: "Text & Writing", pricing: "freemium", popular: true, url: "https://chat.openai.com" },
+  { name: "Claude", icon: "🤖", desc: "Anthropic's AI. Exceptional at long documents, analysis, and nuanced writing.", cat: "Text & Writing", pricing: "freemium", popular: true, url: "https://claude.ai" },
+  { name: "Gemini", icon: "✨", desc: "Google's AI assistant. Multimodal, connected to Google Search in real-time.", cat: "Text & Writing", pricing: "freemium", popular: true, url: "https://gemini.google.com" },
+  { name: "Copy.ai", icon: "📝", desc: "AI copywriting for marketing. Ads, emails, social posts in seconds.", cat: "Text & Writing", pricing: "freemium", popular: false, url: "https://copy.ai" },
+  { name: "Jasper", icon: "🪄", desc: "Enterprise AI writing platform for teams and content marketers.", cat: "Text & Writing", pricing: "paid", popular: false, url: "https://jasper.ai" },
+  { name: "Writesonic", icon: "⚡", desc: "AI writing + SEO tool. Blog posts, ads, and product descriptions with SEO focus.", cat: "Text & Writing", pricing: "freemium", popular: false, url: "https://writesonic.com" },
+  { name: "Quillbot", icon: "🦜", desc: "AI paraphrasing and grammar tool. Rewrite text, summarize, and check grammar.", cat: "Text & Writing", pricing: "freemium", popular: false, url: "https://quillbot.com" },
+
+  // Video
+  { name: "Runway ML", icon: "🎬", desc: "Gen-3 video generation. Text to video, video editing with AI superpowers.", cat: "Video", pricing: "freemium", popular: true, url: "https://runwayml.com" },
+  { name: "Sora", icon: "🌅", desc: "OpenAI's groundbreaking text-to-video model. Cinematic quality videos from text.", cat: "Video", pricing: "paid", popular: true, url: "https://sora.com" },
+  { name: "Kling AI", icon: "🎥", desc: "Chinese AI video generator. High quality, longer videos, growing fast.", cat: "Video", pricing: "freemium", popular: false, url: "https://klingai.com" },
+  { name: "Pika Labs", icon: "⚡", desc: "AI video generation and editing. Turn images into videos easily.", cat: "Video", pricing: "freemium", popular: false, url: "https://pika.art" },
+  { name: "InVideo AI", icon: "📹", desc: "AI video creation for content creators. Templates + AI script + voiceover.", cat: "Video", pricing: "freemium", popular: false, url: "https://invideo.io" },
+  { name: "HeyGen", icon: "🧑", desc: "AI avatar video maker. Create talking head videos without being on camera.", cat: "Video", pricing: "freemium", popular: true, url: "https://heygen.com" },
+  { name: "Synthesia", icon: "🎭", desc: "Enterprise AI video with 160+ AI avatars. Used by Fortune 500 companies.", cat: "Video", pricing: "paid", popular: false, url: "https://synthesia.io" },
+
+  // Audio & Voice
+  { name: "ElevenLabs", icon: "🎙️", desc: "Ultra-realistic AI voice generation. Clone voices, narration, audiobooks.", cat: "Audio & Voice", pricing: "freemium", popular: true, url: "https://elevenlabs.io" },
+  { name: "Suno AI", icon: "🎵", desc: "Create full songs with vocals and instruments just from a text prompt.", cat: "Audio & Voice", pricing: "freemium", popular: true, url: "https://suno.ai" },
+  { name: "Udio", icon: "🎶", desc: "AI music generation. High quality, diverse genres from simple descriptions.", cat: "Audio & Voice", pricing: "freemium", popular: false, url: "https://udio.com" },
+  { name: "Murf AI", icon: "🔊", desc: "AI voiceover studio. 120+ voices, 20+ languages for videos and presentations.", cat: "Audio & Voice", pricing: "freemium", popular: false, url: "https://murf.ai" },
+  { name: "Adobe Podcast", icon: "🎤", desc: "AI audio enhancement. Remove background noise and enhance voice quality instantly.", cat: "Audio & Voice", pricing: "free", popular: false, url: "https://podcast.adobe.com" },
+  { name: "Whisper", icon: "👂", desc: "OpenAI's speech-to-text. Highly accurate transcription in 100+ languages.", cat: "Audio & Voice", pricing: "free", popular: false, url: "https://openai.com/research/whisper" },
+
+  // Code
+  { name: "GitHub Copilot", icon: "💻", desc: "AI pair programmer in your editor. Autocomplete code, generate functions.", cat: "Code", pricing: "paid", popular: true, url: "https://github.com/features/copilot" },
+  { name: "Cursor", icon: "🖱️", desc: "AI-first code editor. Chat with your codebase, edit with natural language.", cat: "Code", pricing: "freemium", popular: true, url: "https://cursor.sh" },
+  { name: "Replit AI", icon: "🔁", desc: "Code, build and deploy apps with AI assistance directly in the browser.", cat: "Code", pricing: "freemium", popular: false, url: "https://replit.com" },
+  { name: "Claude Code", icon: "⌨️", desc: "Agentic coding tool from Anthropic. Understands and edits entire codebases.", cat: "Code", pricing: "paid", popular: true, url: "https://claude.ai/code" },
+  { name: "Tabnine", icon: "🔮", desc: "AI code completions trained on your own codebase. Privacy-focused.", cat: "Code", pricing: "freemium", popular: false, url: "https://tabnine.com" },
+  { name: "Codeium", icon: "🌱", desc: "Free AI coding assistant. Works in 70+ languages and 40+ editors.", cat: "Code", pricing: "free", popular: false, url: "https://codeium.com" },
+
+  // Chatbots
+  { name: "Perplexity AI", icon: "🔭", desc: "AI search engine. Get answers with real-time sources instead of blue links.", cat: "Chatbots", pricing: "freemium", popular: true, url: "https://perplexity.ai" },
+  { name: "Character.AI", icon: "🧩", desc: "Chat with AI characters. Create your own persona or talk to famous ones.", cat: "Chatbots", pricing: "freemium", popular: true, url: "https://character.ai" },
+  { name: "Pi by Inflection", icon: "🤝", desc: "Personal AI designed for friendly, supportive conversation and advice.", cat: "Chatbots", pricing: "free", popular: false, url: "https://heypi.com" },
+  { name: "Poe", icon: "🌊", desc: "Access all major AI models in one app — GPT-4, Claude, Gemini and more.", cat: "Chatbots", pricing: "freemium", popular: false, url: "https://poe.com" },
+  { name: "You.com", icon: "🎯", desc: "AI search + chat combined. Privacy-focused with customizable results.", cat: "Chatbots", pricing: "freemium", popular: false, url: "https://you.com" },
+
+  // Design
+  { name: "Canva AI", icon: "🖌️", desc: "AI design tools inside Canva. Magic Design, text to image, background remover.", cat: "Design", pricing: "freemium", popular: true, url: "https://canva.com" },
+  { name: "Figma AI", icon: "🎯", desc: "AI features in Figma. Auto-layout, design suggestions, and code generation.", cat: "Design", pricing: "freemium", popular: true, url: "https://figma.com" },
+  { name: "Looka", icon: "💎", desc: "AI logo maker. Generate professional logos and brand identity in minutes.", cat: "Design", pricing: "freemium", popular: false, url: "https://looka.com" },
+  { name: "Remove.bg", icon: "✂️", desc: "AI background remover. Remove backgrounds from any image in seconds.", cat: "Design", pricing: "freemium", popular: false, url: "https://remove.bg" },
+  { name: "Uizard", icon: "📱", desc: "AI UI design tool. Turn wireframes and screenshots into editable designs.", cat: "Design", pricing: "freemium", popular: false, url: "https://uizard.io" },
+
+  // Productivity
+  { name: "Notion AI", icon: "📔", desc: "AI inside Notion. Write, summarize, translate and organize your notes.", cat: "Productivity", pricing: "freemium", popular: true, url: "https://notion.so" },
+  { name: "Otter.ai", icon: "🦦", desc: "AI meeting transcription. Real-time notes, summaries from your meetings.", cat: "Productivity", pricing: "freemium", popular: false, url: "https://otter.ai" },
+  { name: "Zapier AI", icon: "⚡", desc: "Automate workflows with AI. Connect 6000+ apps with smart automation.", cat: "Productivity", pricing: "freemium", popular: false, url: "https://zapier.com" },
+  { name: "Mem AI", icon: "🧠", desc: "AI-powered notes that organize themselves. Your second brain.", cat: "Productivity", pricing: "freemium", popular: false, url: "https://mem.ai" },
+  { name: "Reclaim AI", icon: "🗓️", desc: "AI calendar assistant. Auto-schedules tasks and protects focus time.", cat: "Productivity", pricing: "freemium", popular: false, url: "https://reclaim.ai" },
+];
+
+let currentCat = 'all';
+let currentSearch = '';
+
+function getPricingBadge(pricing) {
+  const map = { free: 'badge-free', freemium: 'badge-freemium', paid: 'badge-paid' };
+  const label = { free: 'Free', freemium: 'Freemium', paid: 'Paid' };
+  return `<span class="badge ${map[pricing]}">${label[pricing]}</span>`;
+}
+
+function renderTools(filtered) {
+  const grid = document.getElementById('toolsGrid');
+  const noResults = document.getElementById('noResults');
+  const count = document.getElementById('resultCount');
+
+  count.textContent = `Showing ${filtered.length} tool${filtered.length !== 1 ? 's' : ''}`;
+  document.getElementById('searchCount').textContent = `${filtered.length} tools`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    noResults.style.display = 'block';
+    return;
+  }
+
+  noResults.style.display = 'none';
+
+  grid.innerHTML = filtered.map((t, i) => `
+    <div class="tool-card" style="animation-delay:${i * 0.04}s">
+      <div class="card-top">
+        <div class="tool-icon" style="background:rgba(0,212,255,0.07)">${t.icon}</div>
+        <div class="tool-badges">
+          ${t.popular ? '<span class="badge badge-popular">🔥 Popular</span>' : ''}
+          ${getPricingBadge(t.pricing)}
+        </div>
+      </div>
+      <div class="tool-name">${t.name}</div>
+      <div class="tool-desc">${t.desc}</div>
+      <div class="card-footer">
+        <span class="tool-cat-tag">${t.cat}</span>
+        <a href="${t.url}" target="_blank" class="try-btn">Try it →</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function getFiltered() {
+  return tools.filter(t => {
+    const matchCat = currentCat === 'all' || t.cat === currentCat;
+    const q = currentSearch.toLowerCase();
+    const matchSearch = !q || t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.cat.toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+}
+
+function filterCat(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('sectionTitle').textContent = cat === 'all' ? 'All Tools' : cat;
+  renderTools(getFiltered());
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  currentSearch = this.value;
+  renderTools(getFiltered());
+});
+
+// Initial render
+renderTools(tools);
+</script>
+</body>
+</html>
